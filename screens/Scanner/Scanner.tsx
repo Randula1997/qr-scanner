@@ -1,22 +1,23 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import {
   Text,
   View,
-  StyleSheet,
   Button,
   Vibration,
   ActivityIndicator,
   Alert,
-  Dimensions,
   TouchableOpacity,
 } from 'react-native';
 import SyncStorage from 'sync-storage';
 import axios from 'axios';
-import Table, { TableRowProps } from '../tables/dataTable';
-import { clearData, getData, storeData } from '../database/databaseService';
-import QRCodeScanner from 'react-native-qrcode-scanner';
-import { BarCodeReadEvent } from 'react-native-camera';
+import Table, { TableRowProps } from '../../tables/dataTable';
+import { clearData, getData, storeData } from '../../database/databaseService';
+import { Camera, useCameraDevice, useCodeScanner } from 'react-native-vision-camera';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import styles from './styles';
 
 interface ScannedItem{
     tenantId: string;
@@ -27,32 +28,32 @@ interface ScannedItem{
     condition: any;
 }
 
-export default function Scanner() {
+const Scanner = React.memo(() => {
   const factoryCode = SyncStorage.get('factoryCode');
   const tenantId = SyncStorage.get('tenantId');
   const selectedDepartment = SyncStorage.get('department');
 
-//   const [hasPermission, setHasPermission] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [lastScannedNumber, setLastScannedNumber] = useState('');
   const [selectedButton, setSelectedButton] = useState('Usable');
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
   const [tableData, setTableData] = useState<TableRowProps[]>([]);
   const [loading, setLoading] = useState(false);
+  const [flashLightOn, setFlashLightOn] = useState<'off' | 'on' | undefined>('off');
+  const alertVisibleRef = useRef(false);
+  
+  const device = useCameraDevice('back');
 
   const fetchScannedItems = async () => {
     const storedItems = await getData();
     setTableData(storedItems);
   };
-  // useEffect(() => {
-  //   fetchScannedItems();
-  // }, []);
 
   const handleUploadAll = async () => {
     const apiUrl =
       'http://124.43.17.223:8020/ITRACK/api/services/app/dailyAssetVerification/UploadBulk';
 
-    const batchSize = 10; // Set an appropriate batch size
+    const batchSize = 10;
     const totalItems = tableData.length;
 
     setLoading(true);
@@ -74,35 +75,60 @@ export default function Scanner() {
           clearData();
           Alert.alert('Data Uploaded');
         } else {
-          console.error('Upload failed:', response.status, response.statusText);
         }
       } catch (error) {
-        console.error('Error:', error);
       }
     }
     setLoading(false);
   };
 
-  const handleBarCodeScanned = ({ data }: BarCodeReadEvent) => {
+  const handleBarCodeScanned = (assetNo : any) => {
     const machineNumbers = tableData.map((item, index) => item.assetNo);
-    if (!machineNumbers.includes(data)) {
-      setScanned(true);
+    if (!machineNumbers.includes(assetNo) ) {
       Vibration.vibrate();
-      setLastScannedNumber(data);
+      setScanned(true);
+      setLastScannedNumber(assetNo);
       const scannedItem = {
         tenantId: tenantId,
         factoryCode: factoryCode,
-        assetNo: data,
+        assetNo: assetNo,
         departmentName: selectedDepartment,
         date: new Date().toISOString().split('T')[0],
         condition: selectedButton,
       };
       setScannedItems((prevScannedItems) => [...prevScannedItems, scannedItem]);
       storeData(scannedItem);
+      setTimeout(() => {
+        setScanned(false);
+      }, 500);
     } else {
       setScanned(false);
-      Alert.alert(`Already Scanned: ${data} `);
+      if (!alertVisibleRef.current) {
+        alertVisibleRef.current = true;
+        Alert.alert(`Already Scanned: ${assetNo}`, '', [
+          {
+            text: 'OK',
+            onPress: () => {
+              setScanned(false);
+              alertVisibleRef.current = false;
+            },
+          },
+        ]);
+      }
     }
+  };
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13'],
+    onCodeScanned: (codes) => {
+      if (!scanned){
+        handleBarCodeScanned(codes[0].value);
+      }
+    }
+  });
+
+  const toggleFlashLight = () => {
+    setFlashLightOn((prev) => (prev === 'on' ? 'off' : 'on'));
   };
 
   useEffect(() => {
@@ -135,23 +161,33 @@ export default function Scanner() {
         </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={{backgroundColor: `${selectedButton === 'Usable' ? '#1AD470' : '#848482'}`, width:90, height:40, borderRadius:5, alignItems:'center', justifyContent: 'center'}} onPress={() => handleButtonPress('Usable')}>
+        <TouchableOpacity style={{...styles.buttonStyle, backgroundColor: `${selectedButton === 'Usable' ? '#1AD470' : '#848482'}`}} onPress={() => handleButtonPress('Usable')}>
            <Text style={styles.buttonText}>USABLE</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{backgroundColor: `${selectedButton === 'Defected' ? '#F24008' : '#848482'}`, width:90, height:40, borderRadius:5, alignItems:'center', justifyContent: 'center'}} onPress={() => handleButtonPress('Defected')}>
+        <TouchableOpacity style={{...styles.buttonStyle, backgroundColor: `${selectedButton === 'Defected' ? '#F24008' : '#848482'}`}} onPress={() => handleButtonPress('Defected')}>
            <Text style={styles.buttonText}>DEFECTED</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
-        <View style={styles.cameraContainer}>
-        <QRCodeScanner
-          onRead={handleBarCodeScanned}
-          cameraStyle={styles.camera}
-          reactivate={true}
-          reactivateTimeout={2000}
-        />
+      <View style={styles.cameraContainer}>
+        {device == null ? (
+          <Text>No Device found</Text>
+        ) : (
+          <>
+            <View style={styles.overlay} />
+            <Camera
+              style={styles.camera}
+              device={device}
+              isActive={!scanned}
+              codeScanner={codeScanner}
+              torch={flashLightOn}
+            />
+            <TouchableOpacity style={styles.iconContainer} onPress={toggleFlashLight}>
+              <Icon name="flash" size={24} color={flashLightOn === 'off' ? '#fff' : '#FFFF80'}/>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
-
       </View>
       <Text style={styles.lastScannedNumber}>
         Last scanned Asset No : <Text style={{fontWeight:'700', fontSize:15}}>{lastScannedNumber}</Text>
@@ -166,81 +202,7 @@ export default function Scanner() {
       {loading && <ActivityIndicator color="blue" />}
     </View>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-    paddingHorizontal: 20,
-  },
-  button: {
-    marginHorizontal: 10,
-    minWidth: 150,
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderRadius: 5
-  },
-  countContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
-    backgroundColor: 'rgba(8, 130, 242, 0.12)',
-    padding: 10,
-    marginRight: 70,
-    marginLeft: 70,
-  },
-  totalCount: {
-    fontSize: 100,
-    textAlign: 'center',
-    color: '#0882F2',
-    marginTop: 5,
-  },
-  count: {
-    fontSize: 30,
-    fontWeight: '700'
-  },
-  cameraContainer: {
-    width: '60%',
-    aspectRatio: 1,
-    overflow: 'hidden',
-    alignSelf:'center'
-  },
-  camera: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    alignSelf: 'center',
-    marginTop: 'auto',
-    marginBottom: 'auto',
-  },
-  centerText: {
-    fontSize: 18,
-    color: 'white',
-  },
-  lastScannedNumber: {
-    textAlign: 'center',
-  },
-  table: {
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#000',
-    marginRight: 20,
-    marginLeft: 40,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign:'center',
-    justifyContent: 'center',
-  },
 });
+
+export default Scanner;
+

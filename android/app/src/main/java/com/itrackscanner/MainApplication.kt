@@ -1,4 +1,4 @@
-package com.itrackscanner
+package com.Itrack
 
 import android.app.Application
 import com.facebook.react.PackageList

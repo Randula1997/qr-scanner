@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -18,8 +17,11 @@ import SelectDropdown from 'react-native-select-dropdown';
 import SyncStorage from 'sync-storage';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import FastImage from 'react-native-fast-image';
+import styles from './styles';
 
 type RootStackParamList = {
+  ScannerHome: any;
   Home: any;
 };
 
@@ -29,7 +31,7 @@ type Props = {
   navigation: HomeScreenNavigationProp;
 };
 
-const Login = ({navigation}: Props) => {
+const Login = React.memo(({navigation}: Props) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [factoryCode, setFactoryCode] = useState('');
@@ -51,39 +53,36 @@ const Login = ({navigation}: Props) => {
         throw new Error('Login failed');
       }
       navigation.navigate('Home');
+    } catch (error) {}
+  };
+
+  const fetchFactoryCodes = async () => {
+    const apiUrl =
+      'http://124.43.17.223:8020/ITRACK/api/services/app/department/GetTenants';
+
+    try {
+      const response = await axios.post(apiUrl);
+      setLoading(false);
+      if (!response.data.success) {
+        throw new Error('Data not Available');
+      }
+
+      const data = response.data;
+
+      const names = data.result.items.map(
+        (item: any, index: number) => item.tenancyName,
+      );
+      const tenantIds = data.result.items.map(
+        (item: any, index: number) => item.id,
+      );
+      setFactoryNames(names);
+      setIds(tenantIds);
     } catch (error) {
-      console.error(error);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchFactoryCodes = async () => {
-      const apiUrl =
-        'http://124.43.17.223:8020/ITRACK/api/services/app/department/GetTenants';
-
-      try {
-        const response = await axios.post(apiUrl);
-        setLoading(false);
-        if (!response.data.success) {
-          throw new Error('Data not Available');
-        }
-
-        const data = response.data;
-
-        const names = data.result.items.map(
-          (item: any, index: number) => item.tenancyName,
-        );
-        const tenantIds = data.result.items.map(
-          (item: any, index: number) => item.id,
-        );
-        setFactoryNames(names);
-        setIds(tenantIds);
-      } catch (error) {
-        console.error(error);
-        setLoading(false);
-      }
-    };
-
     fetchFactoryCodes();
   }, []);
 
@@ -101,8 +100,8 @@ const Login = ({navigation}: Props) => {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}>
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <View style={styles.container}>
-            <Image
-              source={require('../assets/login-cover.jpeg')}
+            <FastImage
+              source={require('../../assets/login-cover.jpeg')}
               style={{
                 width: 270,
                 height: 270,
@@ -110,6 +109,7 @@ const Login = ({navigation}: Props) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
+              resizeMode={FastImage.resizeMode.contain}
             />
 
             <View style={styles.inputWrapper}>
@@ -226,11 +226,11 @@ const Login = ({navigation}: Props) => {
             </Text>
             <View style={{flexDirection: 'row', gap: 15}}>
               <Image
-                source={require('../assets/google.png')}
+                source={require('../../assets/google.png')}
                 style={{width: 26, height: 26}}
               />
               <Image
-                source={require('../assets/facebook.png')}
+                source={require('../../assets/facebook.png')}
                 style={{width: 26, height: 26}}
               />
             </View>
@@ -259,86 +259,6 @@ const Login = ({navigation}: Props) => {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  inputWrapper: {
-    width: '80%',
-    marginBottom: 10,
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  dropdown: {
-    flex: 1,
-    marginTop: 5,
-    alignContent: 'flex-end',
-    alignItems: 'stretch',
-    width: 250,
-    height: 170,
-    backgroundColor: '#fff',
-    fontSize: 12,
-    borderRadius: 5,
-  },
-  dropdownContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 40,
-    width: 290,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    marginLeft: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#898989',
-    backgroundColor: '#fff',
-  },
-  dropdownIcon: {
-    position: 'absolute',
-    right: 10,
-    top: '50%',
-    transform: [{translateY: -10}],
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 40,
-    width: 290,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    marginLeft: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#898989',
-    backgroundColor: '#fff',
-  },
-  input: {
-    height: 40,
-    width: 290,
-    color: '#2059B7',
-  },
-  button: {
-    backgroundColor: '#2059B7',
-    padding: 10,
-    borderRadius: 58,
-    width: 187,
-    height: 40,
-  },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '500',
-    fontFamily: 'Poppins',
-    fontSize: 15,
-  },
 });
 
 export default Login;
