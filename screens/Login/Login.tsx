@@ -53,6 +53,7 @@ const Login = React.memo(({navigation}: Props) => {
         throw new Error('Login failed');
       }
       navigation.navigate('Home');
+      SyncStorage.set('userName', username);
     } catch (error) {}
   };
 

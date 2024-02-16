@@ -12,7 +12,7 @@ import SyncStorage from 'sync-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './styles';
-import { useCameraPermission } from 'react-native-vision-camera';
+
 
 type RootStackParamList = {
   Scanner: any;
@@ -31,11 +31,7 @@ const ScannerHome = React.memo(({navigation}: Props) => {
   const [departmentNames, setDepartmentNames] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const { hasPermission, requestPermission } = useCameraPermission();
 
-  useEffect(()=>{
-    requestPermission();
-  },[hasPermission, requestPermission]);
 
   const handleOpenModal = () => {
     setModalVisible(true);

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-quotes */
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 
@@ -11,8 +12,10 @@ import {ScrollView} from 'react-native';
 import {Card} from '@rneui/themed';
 // import {BarChart} from 'react-native-chart-kit';
 import {BarChart} from 'react-native-gifted-charts';
+import {Skeleton} from '@rneui/themed';
 
-interface DataItem {
+
+export interface DataItem {
   efficiency: number;
   lineNo: string;
   planCarder: number;
@@ -23,7 +26,7 @@ interface DataItem {
   workingHours: number;
 }
 
-interface BarChartData {
+export interface BarChartData {
   label: string;
   value: number;
 }
@@ -64,6 +67,7 @@ const Reports = () => {
   }, [data]);
 
   const getLinewiseProduction = async () => {
+    setLoading(true);
     const apiUrl =
       'http://124.43.17.223:8020/ITRACK/api/services/app/manualProduction/GetDailyLineWiseProductionAndCardre';
 
@@ -78,8 +82,6 @@ const Reports = () => {
 
       const data = response.data.result.items;
       setData(data);
-      console.log('date', date);
-      console.log('data', data);
     } catch (error) {
       setLoading(false);
     }
@@ -126,35 +128,38 @@ const Reports = () => {
           />
         )}
       </View>
-      {!loading && data.length > 0 && (
+      {loading ? 
+      <View>
+        <Text>Loading</Text>
+      </View> : (
         <ScrollView>
-          {!loading && totalPlanCarder > 0 && (
+          {totalPlanCarder > 0 && (
             <View style={{marginBottom: 30, marginTop: 20}}>
               <BarChart
                 data={barChartData}
-                frontColor="#008577"
+                frontColor="#2059B7"
                 barWidth={18}
                 yAxisColor="gray"
                 xAxisColor="gray"
                 spacing={10}
                 rotateLabel
-                renderTooltip={
-                  (item: any, index: number) => {
-                    return (
-                      <View
-                        style={{
-                          marginLeft: -6,
-                          backgroundColor: '#ffcefe',
-                          paddingHorizontal: 6,
-                          paddingVertical: 1,
-                          borderRadius: 4,
-                        }}>
-                        <Text style={{fontSize: 8}}>{item.label}: {item.value.toFixed(2)}</Text>
-                      </View>
-                    );
-                  }
-                }
-                xAxisLabelTextStyle={{ fontSize: 7 }}
+                renderTooltip={(item: any, index: number) => {
+                  return (
+                    <View
+                      style={{
+                        marginLeft: -6,
+                        backgroundColor: '#ffcefe',
+                        paddingHorizontal: 6,
+                        paddingVertical: 1,
+                        borderRadius: 4,
+                      }}>
+                      <Text style={{fontSize: 8}}>
+                        {item.label}: {item.value.toFixed(2)}
+                      </Text>
+                    </View>
+                  );
+                }}
+                xAxisLabelTextStyle={{fontSize: 7, color: 'black'}}
               />
             </View>
           )}
@@ -163,24 +168,20 @@ const Reports = () => {
             <Card.Divider />
             <View>
               <View style={styles.textLine}>
-                <Text>TOTAL CARDRE: </Text>
-                <Text>{totalPlanCarder}</Text>
+                <Text style={styles.summaryText}>TOTAL CARDRE</Text>
+                <Text style={styles.summaryText}>TOTAL W/IN</Text>
+                <Text style={styles.summaryText}>TOTAL SAH</Text>
+                <Text style={styles.summaryText}>EFFICIENCY</Text>
               </View>
               <View style={styles.textLine}>
-                <Text>TOTAL W/IN: </Text>
-                <Text>
+                <Text style={styles.summaryNumbers}>{totalPlanCarder}</Text>
+                <Text style={styles.summaryNumbers}>
                   {data.reduce((total, item) => total + item.totalOutput, 0)}
                 </Text>
-              </View>
-              <View style={styles.textLine}>
-                <Text>TOTAL SAH: </Text>
-                <Text>
+                <Text style={styles.summaryNumbers}>
                   {data.reduce((total, item) => total + item.sah, 0).toFixed(2)}
                 </Text>
-              </View>
-              <View style={styles.textLine}>
-                <Text>EFFICIENCY: </Text>
-                <Text>
+                <Text style={styles.summaryNumbers}>
                   {(
                     (data.reduce((total, item) => total + item.sah, 0) /
                       (totalPlanCarder * 9.5)) *

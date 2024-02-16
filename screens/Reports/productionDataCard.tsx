@@ -6,14 +6,16 @@ import {FlatList} from 'react-native';
 import styles from './styles';
 
 const ProductionData = (data: any) => {
-  // console.log('data', data);
   return (
     <>
       <FlatList
         data={data.data}
         renderItem={({item, index}) => (
           <Card containerStyle={styles.card}>
-            <Card.Title>{item.lineNo}</Card.Title>
+            <Card.Title style={styles.cardTitle}>
+                <Text style={styles.textLine}>{item.lineNo}</Text>
+            </Card.Title>
+            <Card.Title><Text style={styles.styleNo}>{item.styleNo}</Text></Card.Title>
             <Card.Divider />
             {/* {data.map((u, i) => { */}
             <View key={index}>
@@ -24,10 +26,6 @@ const ProductionData = (data: any) => {
               <View style={styles.textLine}>
                 <Text>WORKINGHOURS: </Text>
                 <Text>{item.workingHours}</Text>
-              </View>
-              <View style={styles.textLine}>
-                <Text>STYLENO: </Text>
-                <Text>{item.styleNo}</Text>
               </View>
               <View style={styles.textLine}>
                 <Text>TOTAL W/IN: </Text>

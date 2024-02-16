@@ -3,11 +3,10 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      flexGrow: 1,
       backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
       paddingHorizontal: 20,
+      marginBottom: 90
     },
     button: {
       backgroundColor: 'blue',
@@ -18,27 +17,45 @@ const styles = StyleSheet.create({
       color: 'white'
     },
     buttonContainer: {
-      // flex: 1,
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       gap: 30
     },
     card: {
-      width: 350,
       borderRadius: 10,
       backgroundColor: '#fff',
-      elevation: 5, // For Android shadow
-      shadowColor: '#000', // For iOS shadow
+      elevation: 5,
+      shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.1,
       shadowRadius: 8,
     },
-    textLine: {
+    cardTitle:{
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent:'center',
+    },
+    styleNo: {
+      fontSize: 10,
+      fontWeight: '700'
+    },
+    textLine: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 8
+      marginBottom: 8,
+    },
+    summaryText:{
+      color: 'black',
+      fontSize: 9,
+      fontWeight:'400',
+      width: '28%'
+    },
+    summaryNumbers: {
+      color: 'black',
+      fontSize: 14,
+      fontWeight: '500',
+      width: '28%'
     }
   });
 

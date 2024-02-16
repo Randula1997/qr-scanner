@@ -6,6 +6,8 @@ import ScannerHome from './screens/ScannerHome/ScannerHome';
 import Scanner from './screens/Scanner/Scanner';
 import Home from './screens/Home/Home';
 import Reports from './screens/Reports/Reports';
+import VehicleScan from './screens/VehicleScan/VehicleScan';
+import Events from './screens/Events/Events';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +38,16 @@ function App(): React.JSX.Element {
         <Stack.Screen
           name="Reports"
           component={Reports}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="VehicleScan"
+          component={VehicleScan}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Events"
+          component={Events}
           options={{headerShown: false}}
         />
       </Stack.Navigator>
