@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -17,7 +16,6 @@ const styles = StyleSheet.create({
         marginBottom: 8,
       },
       container: {
-        // flexGrow: 1,
         backgroundColor: '#fff',
         paddingHorizontal: 20,
       },

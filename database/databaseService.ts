@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DATA_STORAGE_KEY = 'offlineData';

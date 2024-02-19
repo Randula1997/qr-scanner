@@ -1,9 +1,8 @@
-/* eslint-disable prettier/prettier */
-import axios from 'axios';
 import React, {useEffect, useState} from 'react';
+import {View} from 'react-native';
+import axios from 'axios';
 import {Text} from 'react-native-svg';
 import EventCard from './EventCard';
-import {View} from 'react-native';
 import styles from './styles';
 
 const Events = () => {

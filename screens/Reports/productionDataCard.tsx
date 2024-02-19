@@ -1,8 +1,7 @@
-/* eslint-disable prettier/prettier */
-import {Text, Card} from '@rneui/themed';
 import React from 'react';
 import {View} from 'react-native';
 import {FlatList} from 'react-native';
+import {Text, Card} from '@rneui/themed';
 import styles from './styles';
 
 const ProductionData = (data: any) => {

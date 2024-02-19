@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
   },
   slider: {
     justifyContent: 'center',
-    marginRight: 20
+    marginRight: 20,
+    marginBottom: 10
   },
   title: {
     fontSize: 20,
@@ -43,9 +44,6 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: 20,
     },
     button: {
       flexDirection: 'row',
@@ -60,24 +58,19 @@ const styles = StyleSheet.create({
     buttonText: {
       color: '#fff'
     },
-    buttonContainer: {
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      gap: 30
-    },
     card: {
       borderRadius: 18,
       backgroundColor: '#fff',
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
-        height: 4,
+        height: 2,
       },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
       elevation: 5,
       padding: 16,
+      height:225
     },
     avatarContainer: {
       flexDirection: 'row',
@@ -109,6 +102,40 @@ const styles = StyleSheet.create({
       backgroundColor: '#e4ebfe',
       borderRadius: 7,
     },
+    summaryCard: {
+      alignItems: 'center', 
+      height: 55, 
+      justifyContent: 'center', 
+      borderRadius: 8, 
+      backgroundColor: '#FBFFC9', 
+      gap: 5, 
+    },
+    upComingShipment:{
+      fontSize: 13, 
+      marginLeft:30, 
+      marginTop:10, 
+      paddingBottom:10, 
+      fontWeight: '500', 
+      fontFamily:'Roboto-Medium'
+    },
+    scanButton:{
+      backgroundColor: '#1F9BB4', 
+      borderRadius:  30, 
+      width:  60, 
+      height:  60, 
+      justifyContent: 'center', 
+      alignItems: 'center'
+    },
+    buttonContainer:{
+      flex:  1,
+      flexDirection: 'row',
+      marginTop:-40, 
+      marginBottom:8, 
+      paddingHorizontal:20, 
+      width:'100%', 
+      justifyContent: 'space-between', 
+      alignItems: 'center'
+    },
     centeredView: {
       flex: 1,
       justifyContent: 'center',
@@ -130,9 +157,21 @@ const styles = StyleSheet.create({
       shadowRadius: 4,
       elevation: 5,
     },
+    modalItemText: {
+      fontFamily:'Lato-Regular', 
+      fontSize:10
+    },
+    modalIcon: {
+      width:60, 
+      height:60, 
+      borderRadius:7, 
+      justifyContent:'center', 
+      alignItems:'center', 
+      marginBottom:10
+    },
     overlay: {
-      flex:   1,
-      backgroundColor: 'transparent', // Transparent background for the overlay
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.7)', 
     },
     absolute: {
       position: 'absolute',

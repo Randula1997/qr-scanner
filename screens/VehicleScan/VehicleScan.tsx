@@ -1,6 +1,3 @@
-/* eslint-disable semi */
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import { useRef } from 'react';
 import {
