@@ -165,4 +165,6 @@ const styles = StyleSheet.create({
   },
 });
 
+// Test comment
+
 export default Table;
