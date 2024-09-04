@@ -1,6 +1,6 @@
-/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+/* eslint-disable prettier/prettier */
+import React from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -15,9 +15,9 @@ import {
 import {StackNavigationProp} from '@react-navigation/stack';
 import SelectDropdown from 'react-native-select-dropdown';
 import SyncStorage from 'sync-storage';
-import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FastImage from 'react-native-fast-image';
+import useLogin from '../../hooks/use-login';
 import styles from './styles';
 
 type RootStackParamList = {
@@ -32,60 +32,18 @@ type Props = {
 };
 
 const Login = React.memo(({navigation}: Props) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [factoryCode, setFactoryCode] = useState('');
-  const [factoryNames, setFactoryNames] = useState([]);
-  const [ids, setIds] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  const handleLogin = async () => {
-    const apiUrl = 'http://124.43.17.223:8020/itrack/account/login';
-
-    try {
-      const response = await axios.post(apiUrl, {
-        usernameOrEmailAddress: username,
-        password,
-        tenancyName: factoryCode,
-      });
-
-      if (!response.data.success) {
-        throw new Error('Login failed');
-      }
-      navigation.navigate('Home');
-      SyncStorage.set('userName', username);
-    } catch (error) {}
-  };
-
-  const fetchFactoryCodes = async () => {
-    const apiUrl =
-      'http://124.43.17.223:8020/ITRACK/api/services/app/department/GetTenants';
-
-    try {
-      const response = await axios.post(apiUrl);
-      setLoading(false);
-      if (!response.data.success) {
-        throw new Error('Data not Available');
-      }
-
-      const data = response.data;
-
-      const names = data.result.items.map(
-        (item: any, index: number) => item.tenancyName,
-      );
-      const tenantIds = data.result.items.map(
-        (item: any, index: number) => item.id,
-      );
-      setFactoryNames(names);
-      setIds(tenantIds);
-    } catch (error) {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchFactoryCodes();
-  }, []);
+  const {
+    loading,
+    factoryNames,
+    setFactoryCode,
+    ids,
+    username,
+    setUsername,
+    password,
+    setPassword,
+    handleLogin
+  } = useLogin({navigation});
 
   return (
     <SafeAreaView
@@ -102,7 +60,7 @@ const Login = React.memo(({navigation}: Props) => {
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <View style={styles.container}>
             <FastImage
-              source={require('../../assets/login-cover.jpeg')}
+              source={require('../../assets/images/login-cover.jpeg')}
               style={{
                 width: 270,
                 height: 270,
@@ -227,11 +185,11 @@ const Login = React.memo(({navigation}: Props) => {
             </Text>
             <View style={{flexDirection: 'row', gap: 15}}>
               <Image
-                source={require('../../assets/google.png')}
+                source={require('../../assets/images/google.png')}
                 style={{width: 26, height: 26}}
               />
               <Image
-                source={require('../../assets/facebook.png')}
+                source={require('../../assets/images/facebook.png')}
                 style={{width: 26, height: 26}}
               />
             </View>

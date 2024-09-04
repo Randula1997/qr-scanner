@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import {View, Text, FlatList, ScrollView, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 import { clearItem } from '../database/databaseService';
-// import Icon from 'react-native-vector-icons/FontAwesome';
 
 export interface TableRowProps {
+    [x: string]: any;
     assetNo: string;
     departmentName: string;
     condition: string;

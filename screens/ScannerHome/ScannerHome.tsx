@@ -1,12 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable prettier/prettier */
-/* eslint-disable react-native/no-inline-styles */
-
-import axios from 'axios';
+import React from 'react';
 import {useEffect, useState} from 'react';
 import {Alert, Modal, Text, TouchableOpacity, View} from 'react-native';
+import axios from 'axios';
 import {clearData} from '../../database/databaseService';
-import React from 'react';
 import SelectDropdown from 'react-native-select-dropdown';
 import SyncStorage from 'sync-storage';
 import {StackNavigationProp} from '@react-navigation/stack';

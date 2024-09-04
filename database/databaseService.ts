@@ -37,4 +37,13 @@ const clearItem = async (itemIndex: number) => {
   }
 };
 
-export {storeData, getData, clearData, clearItem};
+const clearItemsByAssetNos = async (assetNos: string[]) => {
+  try {
+    const existingData = await getData();
+    const newData = existingData.filter((item:any) => !assetNos.includes(item.assetNo));
+    await AsyncStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(newData));
+  } catch (error) {
+  }
+};
+
+export {storeData, getData, clearData, clearItem, clearItemsByAssetNos};

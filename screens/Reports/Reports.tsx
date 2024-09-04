@@ -1,102 +1,26 @@
-/* eslint-disable jsx-quotes */
-/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
-
-import {Text, View, TouchableOpacity, Platform, Dimensions} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import styles from './styles';
+/* eslint-disable prettier/prettier */
+import React from 'react';
+import {Text, View, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
+import { ScrollView } from 'react-native-virtualized-view';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
-import axios from 'axios';
-import ProductionData from './productionDataCard';
-import {ScrollView} from 'react-native';
-import {Card} from '@rneui/themed';
-// import {BarChart} from 'react-native-chart-kit';
 import {BarChart} from 'react-native-gifted-charts';
-import {Skeleton} from '@rneui/themed';
-
-
-export interface DataItem {
-  efficiency: number;
-  lineNo: string;
-  planCarder: number;
-  sah: number;
-  smv: number;
-  styleNo: string;
-  totalOutput: number;
-  workingHours: number;
-}
-
-export interface BarChartData {
-  label: string;
-  value: number;
-}
+import useReports from '../../hooks/use-reports';
+import SummaryCard from './summaryCard';
+import ProductionData from './productionDataCard';
+import styles from './styles';
 
 const Reports = () => {
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<DataItem[]>([]);
-  const [uniqueLineNos, setUniqueLineNos] = useState<Set<string>>(new Set());
-  const [totalPlanCarder, setTotalPlanCarder] = useState<number>(0);
-  const [barChartData, setBarChartData] = useState<BarChartData[]>([]);
-
-  useEffect(() => {
-    getLinewiseProduction();
-  }, [date]);
-
-  useEffect(() => {
-    const uniqueLineNosSet = new Set<string>();
-    let totalPlanCarderSum = 0;
-
-    data.forEach(item => {
-      const {lineNo, planCarder} = item;
-
-      if (!uniqueLineNosSet.has(lineNo)) {
-        uniqueLineNosSet.add(lineNo);
-        totalPlanCarderSum += planCarder;
-      }
-    });
-
-    setUniqueLineNos(uniqueLineNosSet);
-    setTotalPlanCarder(totalPlanCarderSum);
-    const chartData = data.map(item => ({
-      label: item.lineNo,
-      value: item.sah,
-    }));
-    setBarChartData(chartData);
-  }, [data]);
-
-  const getLinewiseProduction = async () => {
-    setLoading(true);
-    const apiUrl =
-      'http://124.43.17.223:8020/ITRACK/api/services/app/manualProduction/GetDailyLineWiseProductionAndCardre';
-
-    try {
-      const response = await axios.post(apiUrl, {
-        date: date.toISOString().split('T')[0],
-      });
-      setLoading(false);
-      if (!response.data.success) {
-        throw new Error('Data not Available');
-      }
-
-      const data = response.data.result.items;
-      setData(data);
-    } catch (error) {
-      setLoading(false);
-    }
-  };
-
-  const onChange = (event: Event, selectedDate?: Date) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(Platform.OS === 'ios');
-    setDate(currentDate);
-    getLinewiseProduction();
-  };
-
-  const showDatepicker = () => {
-    setShowDatePicker(true);
-  };
+  const {
+    date,
+    data,
+    onChange,
+    DatepickerOnChange,
+    showDatePicker,
+    loading,
+    totalPlanCarder,
+    barChartData
+  } = useReports();
 
   return (
     <View style={styles.container}>
@@ -107,14 +31,7 @@ const Reports = () => {
           alignItems: 'center',
           justifyContent: 'center',
           marginTop: 20,
-        }}>
-        <Text>Date: </Text>
-        <TouchableOpacity
-          onPress={showDatepicker}
-          style={{backgroundColor: 'gray', padding: 10, borderRadius: 8}}>
-          <Text style={{color: '#fff'}}>{date.toDateString()}</Text>
-        </TouchableOpacity>
-      </View>
+        }} />
       <View style={styles.buttonContainer}>
         {showDatePicker && (
           <RNDateTimePicker
@@ -128,21 +45,36 @@ const Reports = () => {
           />
         )}
       </View>
-      {loading ? 
-      <View>
-        <Text>Loading</Text>
-      </View> : (
-        <ScrollView>
-          {totalPlanCarder > 0 && (
-            <View style={{marginBottom: 30, marginTop: 20}}>
+      {loading ?
+      ( <ActivityIndicator size="large" color="#0000ff" /> ) : (
+        <ScrollView removeClippedSubviews>
+          <Text style={{fontFamily:'Lato-Regular', fontSize:16, marginBottom:5}}>Pick Date</Text>
+          <View style={styles.dateContainer}>
+            <Image source={require('../../assets/images/Calendar.png')} />
+            <TouchableOpacity
+              onPress={DatepickerOnChange}
+              style={{padding: 10, borderRadius: 8}}>
+              <Text style={{color: '#333333', fontFamily:'Lato-Regular', fontSize: 20}}>{date.toDateString()}</Text>
+            </TouchableOpacity>
+            <Image source={require('../../assets/images/Clear.png')} />
+          </View>
+          <View style={styles.title}>
+            <Text style={{fontFamily:'Roboto-Medium', fontSize:36}}>Production </Text>
+            <Text style={{fontFamily:'Roboto-Regular', fontSize:30, color:'#00B4D8'}}>Status</Text>
+          </View>
+          <View style={{marginBottom: 30, marginTop: 20}}>
+            {totalPlanCarder > 0 && (
               <BarChart
                 data={barChartData}
-                frontColor="#2059B7"
+                frontColor="#00B4D8"
                 barWidth={18}
                 yAxisColor="gray"
                 xAxisColor="gray"
                 spacing={10}
-                rotateLabel
+                barBorderRadius={8}
+                yAxisThickness={0}
+                xAxisThickness={0}
+                hideRules
                 renderTooltip={(item: any, index: number) => {
                   return (
                     <View
@@ -161,36 +93,13 @@ const Reports = () => {
                 }}
                 xAxisLabelTextStyle={{fontSize: 7, color: 'black'}}
               />
-            </View>
-          )}
-          <Card containerStyle={styles.card}>
-            <Card.Title>Summary</Card.Title>
-            <Card.Divider />
-            <View>
-              <View style={styles.textLine}>
-                <Text style={styles.summaryText}>TOTAL CARDRE</Text>
-                <Text style={styles.summaryText}>TOTAL W/IN</Text>
-                <Text style={styles.summaryText}>TOTAL SAH</Text>
-                <Text style={styles.summaryText}>EFFICIENCY</Text>
-              </View>
-              <View style={styles.textLine}>
-                <Text style={styles.summaryNumbers}>{totalPlanCarder}</Text>
-                <Text style={styles.summaryNumbers}>
-                  {data.reduce((total, item) => total + item.totalOutput, 0)}
-                </Text>
-                <Text style={styles.summaryNumbers}>
-                  {data.reduce((total, item) => total + item.sah, 0).toFixed(2)}
-                </Text>
-                <Text style={styles.summaryNumbers}>
-                  {(
-                    (data.reduce((total, item) => total + item.sah, 0) /
-                      (totalPlanCarder * 9.5)) *
-                    100
-                  ).toFixed(2)}
-                </Text>
-              </View>
-            </View>
-          </Card>
+            )}
+          </View> 
+          <View style={styles.summaryTitle}>
+            <Text style={{fontFamily:'Roboto-Bold', fontSize:25}}>{date.toDateString()}</Text>
+            <Text style={{fontFamily:'Roboto-Regular', fontSize:16}}>Line wise production summary</Text>
+          </View>
+          <SummaryCard data={data} totalPlanCarder={totalPlanCarder} />
           <ProductionData data={data} />
         </ScrollView>
       )}

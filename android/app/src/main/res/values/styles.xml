@@ -9,7 +9,7 @@
 <!-- Configuration for Dialog.theme. -->
 <style name="Dialog.Theme" parent="Theme.AppCompat.Light.Dialog">
 <!-- BackgroundColor of the date modal -->
-<item name="colorAccent">#2059B7</item>
+<item name="colorAccent">#00B4D8</item>
 <!-- Change textColor of the date modal -->
 <item name="android:textColorPrimary">#000000</item>
 </style>

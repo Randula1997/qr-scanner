@@ -2,6 +2,12 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
+    loginContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#fff',
+    },
     container: {
       flex: 0,
       justifyContent: 'center',
@@ -79,6 +85,19 @@ const styles = StyleSheet.create({
       fontFamily: 'Poppins',
       fontSize: 15,
     },
+    forgotPasswordText: {
+      color: '#2059B7',
+      fontFamily: 'Poppins',
+      fontSize: 15,
+      marginBottom: 20,
+    },
+    socialMediaText: {
+      color: '#2F2F2F',
+      fontFamily: 'Poppins',
+      fontSize: 15,
+      marginBottom: 20,
+      marginTop: 20,
+    }
   });
 
   export default styles;
