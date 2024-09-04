@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
 import {
   Text,
@@ -26,7 +27,7 @@ const Scanner = React.memo(() => {
     toggleFlashLight,
     lastScannedNumber,
     handleUploadAll,
-    loading
+    loading,
   } = useScanner();
 
   return (

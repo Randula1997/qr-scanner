@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
-import { Dimensions } from "react-native";
-import { useCameraPermission } from "react-native-vision-camera";
-import SyncStorage from "sync-storage";
-import axios from "axios";
-import { BarChartData } from "./use-reports";
+/* eslint-disable prettier/prettier */
+import { useCallback, useEffect, useState } from 'react';
+import { Dimensions } from 'react-native';
+import { useCameraPermission } from 'react-native-vision-camera';
+import SyncStorage from 'sync-storage';
+import axios from 'axios';
+import { BarChartData } from './use-reports';
 
 const useHome = () => {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -33,15 +34,15 @@ const useHome = () => {
     getCurrentTimeOfDay();
     const intervalId = setInterval(getCurrentTimeOfDay, 60000);
     return () => clearInterval(intervalId);
-  },[])
-  
+  },[]);
+
   useEffect(()=>{
     requestPermission();
   },[hasPermission, requestPermission]);
 
   const getLinewiseProduction = async () => {
     const apiUrl =
-      'http://124.43.17.223:8020/ITRACK/api/services/app/manualProduction/GetDailyLineWiseProductionAndCardre';
+      `${process.env.BASE_URI}/manualProduction/GetDailyLineWiseProductionAndCardre`;
 
       try {
         const response = await axios.post(apiUrl, {
@@ -73,7 +74,7 @@ const useHome = () => {
         const totalSah = data.reduce((acc: any, obj: { sah: any; }) => acc + obj.sah, 0).toFixed(0);
         const dailyEff = ((data.reduce((acc: any, obj: { efficiency: any; }) => acc + obj.efficiency, 0)) / data.length).toFixed(0);
         setSahSum(totalSah);
-        setEfficiency(dailyEff + "%" );
+        setEfficiency(dailyEff + '%' );
       } catch (error) {
         setLoading(false);
       }
@@ -81,7 +82,7 @@ const useHome = () => {
 
   const getUpcomingShipments = async () => {
     const apiUrl =
-    'http://124.43.17.223:8020/ITRACK/api/services/app/warehouseHeader/GetShipmentPlanDetailReport';
+    `${process.env.BASE_URI}/warehouseHeader/GetShipmentPlanDetailReport`;
 
     try {
       const response = await axios.post(apiUrl, {
@@ -130,8 +131,8 @@ const useHome = () => {
     loadingStyles,
     upComingStyles,
     setModalVisible,
-    modalVisible
-  }
-}
+    modalVisible,
+  };
+};
 
 export default useHome;

@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable prettier/prettier */
 import React from 'react';
 import {useEffect, useState} from 'react';
 import {Alert, Modal, Text, TouchableOpacity, View} from 'react-native';

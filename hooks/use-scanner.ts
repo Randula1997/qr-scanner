@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import { Alert, Vibration } from "react-native";
-import SyncStorage from "sync-storage";
+/* eslint-disable prettier/prettier */
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Vibration } from 'react-native';
+import SyncStorage from 'sync-storage';
 import {
     useCameraDevice,
     useCodeScanner,
   } from 'react-native-vision-camera';
-import axios from "axios";
-import { clearData, getData, storeData } from "../database/databaseService";
-import { TableRowProps } from "../tables/dataTable";
+import axios from 'axios';
+import { clearData, clearItemsByAssetNos, getData, storeData } from '../database/databaseService';
+import { TableRowProps } from '../tables/dataTable';
 
 interface ScannedItem {
     tenantId: string;
@@ -22,17 +23,18 @@ const useScanner = () => {
   const factoryCode = SyncStorage.get('factoryCode');
   const tenantId = SyncStorage.get('tenantId');
   const selectedDepartment = SyncStorage.get('department');
-
   const [scanned, setScanned] = useState(false);
   const [lastScannedNumber, setLastScannedNumber] = useState('');
   const [selectedButton, setSelectedButton] = useState('Usable');
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
   const [tableData, setTableData] = useState<TableRowProps[]>([]);
+  const [uploadedAssetNos, setUploadedAssetNos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [flashLightOn, setFlashLightOn] = useState<'off' | 'on' | undefined>(
     'off',
   );
   const alertVisibleRef = useRef(false);
+  const [uploadedData, setUploadedData] = useState<any[]>([]);
 
   const device = useCameraDevice('back');
 
@@ -41,38 +43,53 @@ const useScanner = () => {
     setTableData(storedItems);
   };
 
-  const handleUploadAll = async () => {
-    const apiUrl =
-      'http://124.43.17.223:8020/ITRACK/api/services/app/dailyAssetVerification/UploadBulk';
-
-    const batchSize = 10;
-    const totalItems = tableData.length;
-    let uploadSuccess = true;
-
-    setLoading(true);
-
+  const fetchUploadedItems = async () => {
+    const apiUrl = 'http://124.43.17.223:8020/ITRACK/api/services/app/dailyAssetVerification/GetDailyAssetVerficationByDate';
     try {
-      for (let i = 0; i < totalItems; i += batchSize) {
-        const batch = tableData.slice(i, i + batchSize);
-        const payload = {
-          scans: batch,
-        };
+      const payload = {
+        factoryCode:factoryCode,
+        date: new Date().toISOString().split('T')[0]
+      }
+      const response = await axios.post(apiUrl, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setUploadedData(response.data.result.items);
+    } catch (error){
+      throw new Error('Failed to fetch uploaded items');
+    }
+  };
 
-        const response = await axios.post(apiUrl, payload, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+  const handleUploadAll = async () => {
+    setLoading(true);
+    const apiUrl = 'http://124.43.17.223:8020/ITRACK/api/services/app/dailyAssetVerification/UploadBulk';
+    let uploadSuccess = true;
+    try {
+      const payload = {
+        scans: tableData,
+      };
+      const response = await axios.post(apiUrl, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status !== 200 && response.status !== 201) {
+        fetchUploadedItems();
+        const unuploadedItems = tableData.filter(tableItem => {
+          return !uploadedData.some(uploadedItem => uploadedItem.assetNo === tableItem.assetNo);
         });
-
-        if (response.status !== 200) {
-          uploadSuccess = false; 
-          break; 
+        if (unuploadedItems.length > 0){
+          setUploadedAssetNos(unuploadedItems.map(item => item.assetNo));
+          uploadSuccess = false;
         }
       }
-
       if (uploadSuccess) {
         clearData();
         Alert.alert('Data Uploaded');
+      } else {
+        clearItemsByAssetNos(uploadedAssetNos);
+        Alert.alert('Data partially Uploaded, Please upload again');
       }
     } catch (error) {
       Alert.alert('Something went wrong');
@@ -149,9 +166,9 @@ const useScanner = () => {
     toggleFlashLight,
     lastScannedNumber,
     handleUploadAll,
-    loading
-  }
+    loading,
+  };
 
-}
+};
 
 export default useScanner;

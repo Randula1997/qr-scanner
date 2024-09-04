@@ -1,8 +1,10 @@
+/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import {View, Text, FlatList, ScrollView, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 import { clearItem } from '../database/databaseService';
 
 export interface TableRowProps {
+    [x: string]: any;
     assetNo: string;
     departmentName: string;
     condition: string;

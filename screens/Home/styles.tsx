@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable prettier/prettier */
 import { StyleSheet } from 'react-native';
 

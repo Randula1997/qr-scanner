@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
-import { StackNavigationProp } from "@react-navigation/stack";
-import axios from "axios";
-import SyncStorage from "sync-storage";
+/* eslint-disable prettier/prettier */
+import { useEffect, useState } from 'react';
+import { StackNavigationProp } from '@react-navigation/stack';
+import axios from 'axios';
+import SyncStorage from 'sync-storage';
 
 type RootStackParamList = {
     ScannerHome: any;
     Home: any;
   };
-  
+
   type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-  
+
   type Props = {
     navigation: HomeScreenNavigationProp;
   };
@@ -41,7 +42,9 @@ const [username, setUsername] = useState('');
       }
       navigation.navigate('Home');
       SyncStorage.set('userName', username);
-    } catch (error) {}
+    } catch (error) {
+      console.error('Login Error, ', error);
+    }
   };
 
   const fetchFactoryCodes = async () => {

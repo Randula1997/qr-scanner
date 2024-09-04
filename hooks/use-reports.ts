@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { Platform } from "react-native";
-import axios from "axios";
+/* eslint-disable prettier/prettier */
+import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+import axios from 'axios';
 
 export interface DataItem {
     efficiency: number;
@@ -47,7 +48,7 @@ const useReports = () => {
     setUniqueLineNos(uniqueLineNosSet);
     setTotalPlanCarder(totalPlanCarderSum);
     const chartData = data.map(item => ({
-      label: item.lineNo,
+      label: item.lineNo.slice(0, 1) + item.lineNo.slice(4),
       value: item.sah,
     }));
     setBarChartData(chartData);
